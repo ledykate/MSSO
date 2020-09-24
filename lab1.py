@@ -17,7 +17,7 @@ M = 4 #количество абонентов
 h = 0.05 #шаг и начало
 a = 1 #для формирования лямды (конец)
 b = 0.95 #для формирования вероятностей (конец)
-S=1000 #количество слотов в целом
+S = 1000 #количество слотов в целом
 
 n1 = int(round(((a-h)/h+1),1)) #количество элементов в лямде
 n2 = int(round(((b-h)/h+1),1)) #количество элементов в вероятностях
@@ -38,6 +38,9 @@ P_min_sr_ABR = [0 for i in range(n1)]
 P_min_sr_RBS = [0 for i in range(n1)]
 MIN_sr = [0 for i in range(n1)]
 
+pabs = 0
+prbs = 0
+minsr = 0
 
 for f in range(n1):
     print(f)
@@ -47,7 +50,7 @@ for f in range(n1):
         for j in range(n2):
             mas1 = np.random.poisson(alfa[f],(M,S)) #формирования пришедших сообщений в слот размером 4 на 1000
             Q[:4,0] = mas1[:,0]
-            P = np.int32(np.zeros([M+2,S]))
+            P = np.int32(np.zeros([M+2,S])) #веротяности передачи
             for s in range(1,S):
                 for t in range(M+2):
                     if t==4 or t==5:
