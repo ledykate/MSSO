@@ -38,37 +38,48 @@ P_min_sr_ABR = [0 for i in range(n1)]
 P_min_sr_RBS = [0 for i in range(n1)]
 MIN_sr = [0 for i in range(n1)]
 
-pabs = 0
-prbs = 0
-minsr = 0
 
 for f in range(n1):
+    print('Лямда')
     print(f)
-    Q = np.int32(np.zeros([M+2,S])) #количество сообщений в слоте
-    Table = np.int32(np.zeros([n2,n2])) #таблица с вероятностями
-    for i in range(n2):
-        for j in range(n2):
-            mas1 = np.random.poisson(alfa[f],(M,S)) #формирования пришедших сообщений в слот размером 4 на 1000
-            Q[:4,0] = mas1[:,0]
-            P = np.int32(np.zeros([M+2,S])) #веротяности передачи
-            for s in range(1,S):
-                for t in range(M+2):
-                    if t==4 or t==5:
-                        P[t][s] = random.choices([1,0], weights=[p_RBS[j],1-p_RBS[j]])[0] and (Q[t][s-1]>0)
-                        Q[4][s] = Q[4][s-1] - (P[4][s]==1 and P[5][s]==0) + (P[0][s]==1 and P[1][s]==0) + (P[1][s]==1 and P[0][s]==0)
-                        Q[5][s] = Q[5][s-1] - (P[5][s]==1 and P[4][s]==0) + (P[2][s]==1 and P[3][s]==0) + (P[3][s]==1 and P[2][s]==0)
-                    else:
-                        P[t][s] = random.choices([1,0], weights=[p_ABR[i],1-p_ABR[i]])[0] and (Q[t][s-1]>0)
-                        if t%2 == 0:
-                            Q[t][s] = mas1[0][s] + Q[t][s-1] - (P[t][s]==1 and P[t+1][s]==0)
+    pabs = 0
+    prbs = 0
+    minsr = 0
+    print('Эксперементы')
+    for w in range(10):
+        print(w)
+        Q = np.int32(np.zeros([M+2,S])) #количество сообщений в слоте
+        Table = np.int32(np.zeros([n2,n2])) #таблица с вероятностями
+        for i in range(n2):
+            for j in range(n2):
+                mas1 = np.random.poisson(alfa[f],(M,S)) #формирования пришедших сообщений в слот размером 4 на 1000
+                Q[:4,0] = mas1[:,0]
+                P = np.int32(np.zeros([M+2,S])) #веротяности передачи
+                for s in range(1,S):
+                    for t in range(M+2):
+                        if t==4 or t==5:
+                            P[t][s] = random.choices([1,0], weights=[p_RBS[j],1-p_RBS[j]])[0] and (Q[t][s-1]>0)
+                            Q[4][s] = Q[4][s-1] - (P[4][s]==1 and P[5][s]==0) + (P[0][s]==1 and P[1][s]==0) + (P[1][s]==1 and P[0][s]==0)
+                            Q[5][s] = Q[5][s-1] - (P[5][s]==1 and P[4][s]==0) + (P[2][s]==1 and P[3][s]==0) + (P[3][s]==1 and P[2][s]==0)
                         else:
-                            Q[t][s] = mas1[0][s] + Q[t][s-1] - (P[t][s]==1 and P[t-1][s]==0)
-            Table[i][j]=sum(np.sum(Q, axis = 0))/S
-    
-    row,col = np.unravel_index(Table.argmin(),Table.shape) #индексы  минимального элемента
-    P_min_sr_ABR[f] = p_ABR[row]
-    P_min_sr_RBS[f] = p_RBS[col]
-    MIN_sr[f] = Table[row][col]
+                            P[t][s] = random.choices([1,0], weights=[p_ABR[i],1-p_ABR[i]])[0] and (Q[t][s-1]>0)
+                            if t%2 == 0:
+                                Q[t][s] = mas1[0][s] + Q[t][s-1] - (P[t][s]==1 and P[t+1][s]==0)
+                            else:
+                                Q[t][s] = mas1[0][s] + Q[t][s-1] - (P[t][s]==1 and P[t-1][s]==0)
+                Table[i][j]=sum(np.sum(Q, axis = 0))/S
+        r,c = np.unravel_index(Table.argmin(),Table.shape)
+        pabs += p_ABR[r]
+        prbs += p_RBS[c]
+        minsr += Table[r][c]
+    P_min_sr_ABR[f] = pabs/10
+    P_min_sr_RBS[f] = prbs/10
+    MIN_sr[f] = minsr/10
+        
+        #row,col = np.unravel_index(Table.argmin(),Table.shape) #индексы  минимального элемента
+        #P_min_sr_ABR[f] = p_ABR[row]
+        #P_min_sr_RBS[f] = p_RBS[col]
+        #MIN_sr[f] = Table[row][col]
    
 fig1 = plt.figure()
 ax1 = fig1.add_axes([0,2.4,1,1])
